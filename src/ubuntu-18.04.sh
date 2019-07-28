@@ -90,7 +90,7 @@ update-grub
 # Primary user
 if [ "x${OEMUSER_RENAME_GROUP}x" != "xx" ]; then
 	if [ "${OEMUSER_RENAME_GROUP}" != "$OEMUSER_NAME" ]; then
-		group_exists=$(cat /etc/group | grep "^${OEMUSER_NAME}")
+		group_exists=$(cat /etc/group | grep "^${OEMUSER_NAME}" || true)
 		if [ "x${group_exists}x" = "xx" ]; then
 			echo '[housewarm.info] rename default user group'
 			groupmod -n "$OEMUSER_RENAME_GROUP" "$OEMUSER_NAME"
@@ -126,7 +126,7 @@ sed -i 's/makestep 1 3/makestep 1 -1/g' /etc/chrony/chrony.conf
 
 mkdir -p /etc/chrony/chrony.conf.d
 chrony_include_source='include /etc/chrony/chrony.conf.d/*.conf'
-chrony_include_configured=$(cat /etc/chrony/chrony.conf | grep "^${chrony_include_source}")
+chrony_include_configured=$(cat /etc/chrony/chrony.conf | grep "^${chrony_include_source}" || true)
 if [ "x${chrony_include_configured}x" != "xx" ]; then
 	echo '[housewarm.info] chrony.conf.d already applied'
 else
