@@ -81,7 +81,7 @@ echo '[housewarm.info] final packages cleanup'
 apt-get purge -f -y wireless-regdb aptitude
 apt-get autoclean -y
 apt-get clean -y
-apt autoremove -f --purge
+apt autoremove -f -y --purge
 
 # Regenerate grub
 echo '[housewarm.info] apply boot settings'
@@ -90,9 +90,14 @@ update-grub
 # Primary user
 if [ "x${OEMUSER_RENAME_GROUP}x" != "xx" ]; then
 	if [ "${OEMUSER_RENAME_GROUP}" != "$OEMUSER_NAME" ]; then
-		echo '[housewarm.info] rename default user group'
-		groupmod -n "$OEMUSER_RENAME_GROUP" "$OEMUSER_NAME"
-		id "$OEMUSER_NAME"
+		group_exists=$(cat /etc/group | grep "^${OEMUSER_NAME}")
+		if [ "x${group_exists}x" = "xx" ]; then
+			echo '[housewarm.info] rename default user group'
+			groupmod -n "$OEMUSER_RENAME_GROUP" "$OEMUSER_NAME"
+			id "$OEMUSER_NAME"
+		else
+			echo '[housewarm.warn] cannot rename group -- already exists!'
+		fi
 	else
 		echo '[housewarm.warn] default user group name == default user name'
 	fi
@@ -122,10 +127,12 @@ sed -i 's/makestep 1 3/makestep 1 -1/g' /etc/chrony/chrony.conf
 mkdir -p /etc/chrony/chrony.conf.d
 chrony_include_source='include /etc/chrony/chrony.conf.d/*.conf'
 chrony_include_configured=$(cat /etc/chrony/chrony.conf | grep "$chrony_include_source")
-if [ "x${chrony_include_configured}x" != "xx" ]; then
+if [ "x${chrony_include_configured}x" = "xx" ]; then
+	echo '[housewarm.info] chrony.conf.d already applied'
+else
 	echo '' >> /etc/chrony/chrony.conf
 	echo '# Include configuration directory' >> /etc/chrony/chrony.conf
-	echo '' >> /etc/chrony/chrony.conf
+	echo "$chrony_include_source" >> /etc/chrony/chrony.conf
 fi
 
 if [ "$NTP_SOURCE" = "hyperv" ]; then
@@ -198,6 +205,12 @@ if [ "x${PKG_POWERSHELL_URL}x" != "xx" ]; then
 		dpkg -i /tmp/psrp.deb
 		apt-get install -f
 	fi
+fi
+
+if [ "x${PKG_DOCKER_URL}x" != "xx" ]; then
+	echo '[housewarm.info] install docker'
+	curl -L "$PKG_DOCKER_URL" -o /tmp/docker.deb
+	dpkg -i /tmp/docker.deb
 fi
 
 # Reboot
