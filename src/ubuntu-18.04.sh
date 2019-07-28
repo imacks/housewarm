@@ -126,8 +126,8 @@ sed -i 's/makestep 1 3/makestep 1 -1/g' /etc/chrony/chrony.conf
 
 mkdir -p /etc/chrony/chrony.conf.d
 chrony_include_source='include /etc/chrony/chrony.conf.d/*.conf'
-chrony_include_configured=$(cat /etc/chrony/chrony.conf | grep "$chrony_include_source")
-if [ "x${chrony_include_configured}x" = "xx" ]; then
+chrony_include_configured=$(cat /etc/chrony/chrony.conf | grep "^${chrony_include_source}")
+if [ "x${chrony_include_configured}x" != "xx" ]; then
 	echo '[housewarm.info] chrony.conf.d already applied'
 else
 	echo '' >> /etc/chrony/chrony.conf
