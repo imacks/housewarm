@@ -18,6 +18,9 @@ AUTO_REBOOT="true"
 #PKG_POWERSHELL_URL="https://github.com/PowerShell/PowerShell/releases/download/v6.2.2/powershell_6.2.2-1.ubuntu.18.04_amd64.deb"
 #PKG_OMI_URL="https://github.com/microsoft/omi/releases/download/v1.6.0/omi-1.6.0-0.ssl_110.ulinux.x64.deb"
 #PKG_PSRP_URL="https://github.com/PowerShell/psl-omi-provider/releases/download/v1.4.2-2/psrp-1.4.2-2.universal.x64.deb"
+#PKG_DOCKER_URL="https://download.docker.com/linux/ubuntu/dists/bionic/pool/stable/amd64/docker-ce_19.03.1~3-0~ubuntu-bionic_amd64.deb"
+#PKG_DOCKER_CLI_URL="https://download.docker.com/linux/ubuntu/dists/bionic/pool/stable/amd64/docker-ce-cli_19.03.1~3-0~ubuntu-bionic_amd64.deb"
+#PKG_DOCKER_CONTAINERD_URL="https://download.docker.com/linux/ubuntu/dists/bionic/pool/stable/amd64/containerd.io_1.2.6-3_amd64.deb"
 
 # --- END CONFIGURATION ---
 
@@ -32,7 +35,7 @@ rm -rf /etc/cloud
 rm -rf /var/lib/cloud
 
 echo '[housewarm.info] install required packages'
-apt-get install -f -y ncurses-term screen curl chrony net-tools iptables dnsutils mdadm xfsprogs secureboot-db
+apt-get install -f -y ncurses-term screen curl chrony net-tools iptables dnsutils mdadm xfsprogs secureboot-db openssh-server
 
 if [ "$CPU_ARCH" = "intel" ]; then
 	echo '[housewarm.info] install intel microcode'
@@ -53,9 +56,9 @@ echo '[housewarm.info] uninstall extra packages'
 apt-get purge -f -y --autoremove vim-common vim-tiny bash-completion debconf-i18n ubuntu-advantage-tools thermald net-tools
 
 if [ "$DISABLE_NETPLAN" = "true" ]; then
-	echo '[housewarm.info] degrade netplan to ifdownup'
+	echo '[housewarm.info] degrade netplan to ifupdown'
 
-	apt-get install -f -y ifdownup
+	apt-get install -f -y ifupdown
 
 	echo 'source /etc/network/interfaces.d/*' > /etc/network/interfaces
 	echo '' >> /etc/network/interfaces
@@ -71,13 +74,13 @@ if [ "$DISABLE_NETPLAN" = "true" ]; then
 	rm -rf /etc/netplan
 	rm -rf /usr/share/netplan
 
-	sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="netcfg/do_not_use_netplan=true"/g' /etc/default/grub
+	sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="netcfg\/do_not_use_netplan=true"/g' /etc/default/grub
 fi
 
 echo '[housewarm.info] final packages cleanup'
 apt-get purge -f -y wireless-regdb aptitude
-apt-get autoclean
-apt-get clean
+apt-get autoclean -y
+apt-get clean -y
 apt autoremove -f --purge
 
 # Regenerate grub
@@ -117,9 +120,13 @@ sed -i 's/but only in the first three clock updates/for all clock updates/g' /et
 sed -i 's/makestep 1 3/makestep 1 -1/g' /etc/chrony/chrony.conf
 
 mkdir -p /etc/chrony/chrony.conf.d
-echo '' >> /etc/chrony/chrony.conf
-echo '# Include configuration directory' >> /etc/chrony/chrony.conf
-echo 'include /etc/chrony/chrony.conf.d/*.conf' >> /etc/chrony/chrony.conf
+chrony_include_source='include /etc/chrony/chrony.conf.d/*.conf'
+chrony_include_configured=$(cat /etc/chrony/chrony.conf | grep "$chrony_include_source")
+if [ "x${chrony_include_configured}x" != "xx" ]; then
+	echo '' >> /etc/chrony/chrony.conf
+	echo '# Include configuration directory' >> /etc/chrony/chrony.conf
+	echo '' >> /etc/chrony/chrony.conf
+fi
 
 if [ "$NTP_SOURCE" = "hyperv" ]; then
 	echo '[housewarm.info] add Hyper-V time integration'
@@ -138,7 +145,7 @@ echo '[housewarm.info] disable dynamic MOTD news'
 sed -i 's/ENABLED=1/ENABLED=0/g' /etc/default/motd-news
 
 echo '[housewarm.info] del default motd info'
-rm /etc/update-motd.d/10-help-text
+rm -rf /etc/update-motd.d/10-help-text
 
 if [ "x${MOTD_BANNER_URL}x" != "xx" ]; then
 	echo '[housewarm.info] install motd banner'
