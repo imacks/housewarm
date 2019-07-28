@@ -9,11 +9,12 @@ IS_VIRTUAL_MACHINE="true"
 DISABLE_NETPLAN="true"
 DISABLE_SWAP="true"
 NTP_SOURCE="hyperv"
-MOTD_BANNER_URL=""
-MOTD_COMPUTER_INFO_URL=""
+MOTD_BANNER_URL="https://raw.githubusercontent.com/imacks/housewarm/master/src/motd/00-banner.sh"
+MOTD_COMPUTER_INFO_URL="https://raw.githubusercontent.com/imacks/housewarm/master/src/motd/15-computer-info.sh"
 COLORFUL_BASHRC="true"
 OEMUSER_NAME="administrator"
 OEMUSER_RENAME_GROUP="administrators"
+AUTO_REBOOT="true"
 #PKG_POWERSHELL_URL="https://github.com/PowerShell/PowerShell/releases/download/v6.2.2/powershell_6.2.2-1.ubuntu.18.04_amd64.deb"
 #PKG_OMI_URL="https://github.com/microsoft/omi/releases/download/v1.6.0/omi-1.6.0-0.ssl_110.ulinux.x64.deb"
 #PKG_PSRP_URL="https://github.com/PowerShell/psl-omi-provider/releases/download/v1.4.2-2/psrp-1.4.2-2.universal.x64.deb"
@@ -193,5 +194,10 @@ if [ "x${PKG_POWERSHELL_URL}x" != "xx" ]; then
 fi
 
 # Reboot
-echo '[housewarm.info] rebooting...brb'
-reboot
+
+if [ "$AUTO_REBOOT" = "true" ]; then
+	echo '[housewarm.info] rebooting...brb'
+	reboot
+else
+	echo '[housewarm.info] all done. Reboot for changes to take effect.'
+fi
