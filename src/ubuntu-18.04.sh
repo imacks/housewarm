@@ -18,8 +18,8 @@ AUTO_REBOOT="true"
 #PKG_POWERSHELL_URL="https://github.com/PowerShell/PowerShell/releases/download/v6.2.2/powershell_6.2.2-1.ubuntu.18.04_amd64.deb"
 #PKG_OMI_URL="https://github.com/microsoft/omi/releases/download/v1.6.0/omi-1.6.0-0.ssl_110.ulinux.x64.deb"
 #PKG_PSRP_URL="https://github.com/PowerShell/psl-omi-provider/releases/download/v1.4.2-2/psrp-1.4.2-2.universal.x64.deb"
-#PKG_DOCKER_URL="https://download.docker.com/linux/ubuntu/dists/bionic/pool/stable/amd64/docker-ce_19.03.1~3-0~ubuntu-bionic_amd64.deb"
-#PKG_DOCKER_CLI_URL="https://download.docker.com/linux/ubuntu/dists/bionic/pool/stable/amd64/docker-ce-cli_19.03.1~3-0~ubuntu-bionic_amd64.deb"
+#PKG_DOCKER_URL="https://download.docker.com/linux/ubuntu/dists/bionic/pool/stable/amd64/docker-ce_18.09.8~3-0~ubuntu-bionic_amd64.deb"
+#PKG_DOCKER_CLI_URL="https://download.docker.com/linux/ubuntu/dists/bionic/pool/stable/amd64/docker-ce-cli_18.09.8~3-0~ubuntu-bionic_amd64.deb"
 #PKG_DOCKER_CONTAINERD_URL="https://download.docker.com/linux/ubuntu/dists/bionic/pool/stable/amd64/containerd.io_1.2.6-3_amd64.deb"
 
 # --- END CONFIGURATION ---
